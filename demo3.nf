@@ -1,16 +1,18 @@
-params.gene_id = 'Sec23a'
-params.annot = 'data/annot-mouse.gtf'
+params.seq = "$baseDir/data/BB11001.tfa" 
+seq_ch = Channel.fromPath(params.seq)
 
-annotations = Channel.fromPath(params.annot)
-
-process count {
-  echo true
-  
-  input: 
-  val gene_id from params.gene_id
-  file 'annot.gft' from annotations
-
-  """
-  grep ${gene_id} annot.gft | awk '\$3=="transcript"' | wc -l
-  """
+process aling {
+	
+	input:  file 'sequences.fasta' from seq_ch
+	output: file 'out.aln' into aln_ch
+	
+	"""
+	t_coffee -in sequences.fasta -outfile out.aln 
+	""" 
 }
+
+aln_ch.println()
+
+
+
+

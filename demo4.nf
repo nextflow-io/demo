@@ -1,31 +1,28 @@
-params.gene_id = 'Sec23a'
-params.annot = 'data/annot-mouse.gtf'
+params.seq = "$baseDir/data/BB11001.tfa" 
+seq_ch = Channel.fromPath(params.seq)
 
-annotations = Channel.fromPath(params.annot)
-
-process count {
-  
-  input: 
-  val gene_id from params.gene_id
-  file 'annot.gft' from annotations
-  
-  output: 
-  file 'count.txt' into count_ch
-
-  """
-  echo -n ${gene_id}, > count.txt 
-  grep ${gene_id} annot.gft | awk '\$3=="transcript"' | wc -l >> count.txt
-  """
+process aling {
+	
+	input:  file 'sequences.fasta' from seq_ch
+	output: file 'out.aln' into aln_ch
+	
+	"""
+	t_coffee -in sequences.fasta -outfile out.aln -output phy
+	""" 
 }
 
-process aggregate {
-  echo true
-  
-  input: 
-  file c from count_ch.collectFile()
-  
-  """
-  awk -F',' '{sum+=\$2} END{print sum;}' $c
-  """
-  
+process make_tree { 
+	publishDir 'results'
+
+	input: file(aln) from aln_ch
+	output: file('RAxML_bestTree.demo')
+	
+	"""
+	raxml -m PROTGAMMALG -s $aln -n demo  
+	"""
+
 }
+
+
+
+
