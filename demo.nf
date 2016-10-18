@@ -8,10 +8,10 @@ process align {
   input: 
   file seq from seq_ch 
   output: 
-  file '*.aln' into aln_ch
+  file '*.phy' into aln_ch
 	
   """
-  t_coffee -in $seq 
+  t_coffee -in $seq -output phy
   """
   
 }
@@ -20,18 +20,18 @@ process makeTree {
 	publishDir params.out, mode: 'copy' 
 	
 	input: 
-	file aln from aln_ch.toList() 
+	file aln from aln_ch 
 	output:
-	file 'RAxML_bestTree.big' 
+	file 'RAxML_bestTree.*' 
 
 	"""
-	t_coffee -profile $aln -output phy -outfile big.aln
-	raxml -s big.aln -m PROTGAMMALG -n big
+	raxml -s $aln -m PROTGAMMALG -n $aln.baseName
 	"""
 	
 }
 
 
+
 workflow.onComplete {
-  println workflow.success ? "Done! Check result file at `${params.out}/RAxML_bestTree.big`" : 'Oops.. something went wrong'
+  println workflow.success ? "Done! Check result files in the folder `${params.out}`" : 'Oops.. something went wrong'
 }
