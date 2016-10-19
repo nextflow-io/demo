@@ -40,7 +40,7 @@ nextflow run demo.nf
 The tree output file is written in the `results` directory. 
 
 By default the script uses the sequences FASTA file named `data/BB11001.tfa`. To use 
-a different input specify the `--seq` command line option as shown below: 
+a different input file specify the `--seq` command line option as shown below: 
 
 ```      
 nextflow run demo.nf --seq data/BB11029.tfa
